@@ -240,6 +240,7 @@ describe('SDK', function suite() {
 
     const identityBeforeTopUp = await clientInstance.platform.identities.get(identityId);
     const balanceBeforeTopUp = identityBeforeTopUp.getBalance();
+    console.log({balanceBeforeTopUp});
     const topUpAmount = 10000;
     const topUpCredits = topUpAmount * 1000;
 
@@ -252,6 +253,15 @@ describe('SDK', function suite() {
     // Fee is based on ST's size atm, so we too lazy
     // to take it somehow from clientInstance.platform.identities.topUp
 
+    const balanceAfterTopUp = identity.getBalance();
+    console.log({balanceAfterTopUp});
+    if(balanceAfterTopUp <= balanceBeforeTopUp){
+      // In most of the cases, it's not an issue, but in some, we need to wait more
+      await wait(10000);
+      console.log(identity.getBalance());
+      await wait(10000);
+      console.log(identity.getBalance());
+    }
     expect(identity.getBalance()).to.be.greaterThan(balanceBeforeTopUp);
     expect(identity.getBalance()).to.be.lessThan(balanceBeforeTopUp + topUpCredits);
   })
