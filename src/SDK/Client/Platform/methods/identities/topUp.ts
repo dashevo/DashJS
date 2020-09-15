@@ -1,7 +1,27 @@
 import {Platform} from "../../Platform";
-
 import { wait } from "../../../../../utils/wait";
 import createAssetLockTransaction from "../../createAssetLockTransaction";
+import {PrivateKey} from "@dashevo/dashcore-lib";
+import DashPlatformProtocol from "@dashevo/dpp";
+
+/**
+ * @param {DashPlatformProtocol} dpp
+ * @param {string} identityId
+ * @param {PrivateKey} privateKey
+ * @returns {number}
+ */
+function calculateTopUpTransitionFee(dpp: DashPlatformProtocol, identityId: string, privateKey: PrivateKey): number {
+    const staticOutPointBuffer = Buffer.alloc(36);
+
+    const identityTopUpTransition = dpp.identity.createIdentityTopUpTransition(
+        identityId,
+        staticOutPointBuffer,
+    );
+
+    identityTopUpTransition.signByPrivateKey(privateKey);
+
+    return identityTopUpTransition.calculateFee();
+}
 
 /**
  * Register identities to the platform
@@ -14,12 +34,22 @@ import createAssetLockTransaction from "../../createAssetLockTransaction";
 export async function topUp(this: Platform, identityId: string, amount: number): Promise<any> {
     const { client, dpp } = this;
 
+    // @ts-ignore
+    const assetLockOneTimePrivateKey = new PrivateKey();
+
+    const topUpTransitionFee = calculateTopUpTransitionFee(
+        dpp,
+        identityId,
+        assetLockOneTimePrivateKey,
+    );
+
     const account = await client.getWalletAccount();
 
-    const {
-        transaction: assetLockTransaction,
-        privateKey: assetLockPrivateKey
-    } = await createAssetLockTransaction(this, amount);
+    const assetLockTransaction = await createAssetLockTransaction(
+        this,
+        assetLockOneTimePrivateKey,
+        amount + topUpTransitionFee,
+    );
 
     // Broadcast Asset Lock transaction
     await account.broadcastTransaction(assetLockTransaction);
@@ -33,7 +63,7 @@ export async function topUp(this: Platform, identityId: string, amount: number):
 
     const identityTopUpTransition = dpp.identity.createIdentityTopUpTransition(identityId, outPointBuffer);
 
-    identityTopUpTransition.signByPrivateKey(assetLockPrivateKey);
+    identityTopUpTransition.signByPrivateKey(assetLockOneTimePrivateKey);
 
     const result = await dpp.stateTransition.validateStructure(identityTopUpTransition);
 

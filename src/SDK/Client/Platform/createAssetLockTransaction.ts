@@ -5,15 +5,14 @@ import { Platform } from "./Platform";
 /**
  * Creates a funding transaction for the platform identity and returns one-time key to sign the state transition
  * @param {Platform} platform
- * @param {number} fundingAmount - amount of dash to fund the identity's credits
- * @return {{transaction: Transaction, privateKey: PrivateKey}} - transaction and one time private key
+ * @param {PrivateKey} assetLockOneTimePrivateKey - one time private key
  * that can be used to sign registration/top-up state transition
+ * @param {number} fundingAmount - amount of dash to fund the identity's credits
+ * @return {Transaction} - transaction
  */
-export default async function createAssetLockTransaction(platform : Platform, fundingAmount): Promise<{ transaction: Transaction, privateKey: PrivateKey }> {
+export default async function createAssetLockTransaction(platform : Platform, assetLockOneTimePrivateKey: PrivateKey, fundingAmount): Promise<Transaction> {
     const account = await platform.client.getWalletAccount();
 
-    // @ts-ignore
-    const assetLockOneTimePrivateKey = new PrivateKey();
     const assetLockOneTimePublicKey = assetLockOneTimePrivateKey.toPublicKey();
 
     const identityAddress = assetLockOneTimePublicKey.toAddress(platform.client.network).toString();
@@ -49,10 +48,5 @@ export default async function createAssetLockTransaction(platform : Platform, fu
     // @ts-ignore
     const signingKeys = utxoHDPrivateKey.map((hdprivateKey) => hdprivateKey.privateKey);
 
-    const transaction = lockTransaction.sign(signingKeys);
-
-    return {
-        transaction,
-        privateKey: assetLockOneTimePrivateKey
-    };
+    return lockTransaction.sign(signingKeys);
 }

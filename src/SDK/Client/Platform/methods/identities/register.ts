@@ -1,6 +1,7 @@
 import { Platform } from "../../Platform";
 import { wait } from "../../../../../utils/wait";
 import createAssetLockTransaction from "../../createAssetLockTransaction";
+import {PrivateKey} from "@dashevo/dashcore-lib";
 
 /**
  * Register identities to the platform
@@ -12,11 +13,10 @@ export default async function register(this: Platform, fundingAmount : number = 
     const { client, dpp } = this;
 
     const account = await client.getWalletAccount();
+    // @ts-ignore
+    const assetLockOneTimePrivateKey = new PrivateKey();
 
-    const {
-        transaction: assetLockTransaction,
-        privateKey: assetLockPrivateKey
-    } = await createAssetLockTransaction(this, fundingAmount);
+    const assetLockTransaction = await createAssetLockTransaction(this, assetLockOneTimePrivateKey, fundingAmount);
 
     // Broadcast Asset Lock transaction
     await account.broadcastTransaction(assetLockTransaction);
@@ -38,7 +38,7 @@ export default async function register(this: Platform, fundingAmount : number = 
     // Create ST
     const identityCreateTransition = dpp.identity.createIdentityCreateTransition(identity);
 
-    identityCreateTransition.signByPrivateKey(assetLockPrivateKey);
+    identityCreateTransition.signByPrivateKey(assetLockOneTimePrivateKey);
 
     const result = await dpp.stateTransition.validateStructure(identityCreateTransition);
 
