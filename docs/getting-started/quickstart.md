@@ -7,6 +7,9 @@ Having [NodeJS](https://nodejs.org/) installed, just type :
 ```bash
 npm install dash
 ```
+
+Or for browsers : `<script src="https://unpkg.com/dash"></script>`   
+
 ## Initialization
 
 Let's create a Dash SDK client instance specifying both our mnemonic and the schema we wish to work with.

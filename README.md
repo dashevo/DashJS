@@ -84,6 +84,15 @@ The Dash SDK works using multiple dependencies that might interest you:
 
 Some features might be more extensive in those libs, as Dash SDK only wraps around them to provide a single interface that is easy to use (and thus has less features).
 
+### Build : 
+
+To build the Dash SDK, you will need to have TypeScript installed.  
+In addition, for REPL Execution, ts-node will also be required. 
+
+```shell script
+npm install -g typescript ts-node
+```
+
 ## Documentation
 
 More extensive documentation available at https://dashevo.github.io/js-dash-sdk/.

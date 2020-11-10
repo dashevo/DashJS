@@ -63,6 +63,15 @@ client.getWalletAccount().then(async (account) => {
 });
 ```
 
+### Build : 
+
+To build the Dash SDK, you will need to have TypeScript installed.  
+In addition, for REPL Execution, ts-node will also be required. 
+
+```shell script
+npm install -g typescript ts-node
+```
+
 
 ### Use-cases examples
 - [Generate a mnemonic](/examples/generate-a-new-mnemonic.md) 

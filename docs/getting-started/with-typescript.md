@@ -1,6 +1,9 @@
-In order to use Dash SDK with TypeScript.    
+In order to use Dash SDK with TypeScript, you will need some dependencies to be manually installed.   
 
-Create an index.ts file  
+`npm install -g typescript` - Required for compilation (`tsc`).    
+`npm install -g ts-node` - Required for REPL / Execution.     
+
+Create a new file, and assuming you name it `myScript.ts`.    
 
 ```js
 import Dash from 'dash';
@@ -27,5 +30,6 @@ Have a following `tsconfig.json` file
 }
 ```
 
+**Run without compiling**: `ts-node myScript.ts`  
 **Compile:** `tsc -p tsconfig.json`  
-**Run:** `node index.js`  
+**Run:** `node myScript.js`  
