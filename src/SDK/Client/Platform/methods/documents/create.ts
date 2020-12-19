@@ -15,7 +15,7 @@ declare interface createOpts {
 export async function create(this: Platform, typeLocator: string, identity: any, data: createOpts = {}): Promise<any> {
     const { dpp } = this;
 
-    const appNames = this.client.getApps().getNames();
+    const appNames = this.client.getApps().getAliases();
 
     //We can either provide of type `dashpay.profile` or if only one schema provided, of type `profile`.
     const [appName, fieldType] = (typeLocator.includes('.')) ? typeLocator.split('.') : [appNames[0], typeLocator];

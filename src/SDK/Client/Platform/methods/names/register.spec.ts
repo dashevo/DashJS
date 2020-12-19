@@ -26,11 +26,8 @@ describe('Platform', () => {
                 platformMock = {
                     client: {
                         getApps() {
-                            return new ClientApps({
-                                dpns: {
-                                    contractId: generateRandomIdentifier(),
-                                }
-                            });
+                            const appsOps = [{contractId: generateRandomIdentifier(), alias: 'dpns'}];
+                            return new ClientApps(appsOps);
                         }
                     },
                     documents: {

@@ -4,11 +4,10 @@ const opts = {
   wallet: {
     mnemonic: "arena light cheap control apple buffalo indicate rare motor valid accident isolate",
   },
-  apps: {
-    dashpay: {
-    contractId: ''// Provide the dashpay contract id here
-    }
-  }
+  apps: [{
+    contractId: '',// Provide the dashpay contract id here
+    alias: 'dashpay'
+  }]
 };
 const clientInstance = new Dash.Client(opts);
 

@@ -15,12 +15,10 @@ Let's create a Dash SDK client instance specifying both our mnemonic and the sch
 const Dash = require("../src");
 const opts = {
   network: 'testnet',
-  apps: {
-    dashpay: {
+  apps: [{
       contractId:1234,
-      schema: require('schema.json')
-    },
-  },
+      contract: require('contract.json')
+  }],
   wallet: {
     mnemonic: "arena light cheap control apple buffalo indicate rare motor valid accident isolate",
   },

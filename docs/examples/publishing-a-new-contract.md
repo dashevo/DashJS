@@ -45,11 +45,10 @@ const client = new Dash.Client({
   wallet: {
     mnemonic: "", // Your app mnemonic, which holds the identity
   },
-  apps:{
-    myapp:{
-      contractId:""// The registered contract id    
-    }
-  }
+  apps: [{
+      contractId: "",// The registered contract id 
+      alias: 'myapp'
+  }]
 });
 
 client.isReady().then(getDocuments);

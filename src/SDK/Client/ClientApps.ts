@@ -3,63 +3,107 @@ import Identifier from "@dashevo/dpp/lib/Identifier";
 /**
  * Interface for ClientApps
  */
-export interface ClientAppsOptions {
-    [name: string]: ClientAppDefinitionOptions,
-}
 
-interface ClientAppDefinitionOptions {
-    contractId: Identifier|string,
+export interface ClientAppDefinitionOptions {
+    contractId: Identifier | string,
     contract?: any
-}
+    aliases?: [string],
+    alias?: string
+};
 
-interface ClientAppDefinition {
+export interface ClientAppDefinition {
     contractId: Identifier,
-    contract?: any
+    contract: any,
+    aliases: [string]
 }
 
-type ClientAppsList = Record<string, ClientAppDefinition>;
+type ClientAppsList = Record<Identifier, ClientAppDefinition>;
+
+function getIdentifierFromQuery(query: string|Identifier, apps: ClientAppsList): Identifier{
+    let identifier;
+    try {
+        identifier = Identifier.from(query);
+    } catch (e) {
+        if(!['Non-base58 character', 'Identifier must be 32 long'].includes(e.message)) throw e;
+        const appSearch = Object.entries(apps).find((el) => {
+            if (el[1].aliases.includes(query)) {
+                return el;
+            }
+        });
+        if (appSearch && appSearch.length) {
+            identifier = Identifier.from(appSearch[0]);
+        }
+    }
+    return identifier;
+};
 
 export class ClientApps {
     private apps: ClientAppsList = {};
 
-    constructor(apps: ClientAppsOptions = {}) {
-        Object.entries(apps).forEach(([name, definition]) => this.set(name, definition));
+    constructor(apps: Array<ClientAppDefinitionOptions> = []) {
+        apps && apps.forEach((appDefinition)=> this.set(appDefinition.contractId, appDefinition));
     }
 
+    getApps(){
+        return this.apps;
+    }
     /**
      * Set app
      *
-     * @param {string} name
-     * @param {ClientAppDefinitionOptions} definition
+     * @param {string|Identifier} contractId
+     * @param {ClientAppDefinitionOptions} appProperties
      */
-    set(name: string, definition: ClientAppDefinitionOptions) {
-        definition.contractId = Identifier.from(definition.contractId);
+    set(contractId: string | Identifier, appProperties) {
+        const identifier = Identifier.from(contractId);
 
-        this.apps[name] = definition;
-    }
+        const definition = this.apps[identifier] || {
+            contractId: identifier.toString(),
+            contract: null,
+            aliases: []};
 
-    /**
-     * Get app definition by name
-     *
-     * @param {string} name
-     * @return {ClientAppDefinition}
-     */
-    get(name: string): ClientAppDefinition {
-        if (!this.has(name)) {
-            throw new Error(`Application with name ${name} is not defined`);
+        if (appProperties.contract) definition.contract = appProperties.contract;
+
+        if(appProperties.alias || appProperties.aliases){
+            const aliases = (appProperties.alias) ? [appProperties.alias] : appProperties.aliases;
+            aliases.forEach((alias)=>{
+                const matchingAppAlias = this.get(alias);
+                if(matchingAppAlias){
+                    // @ts-ignore we remove the previously assigned alias
+                    matchingAppAlias.aliases = matchingAppAlias.aliases.filter(alias => alias !== appProperties.alias);
+                }
+                definition.aliases.push(alias);
+            });
         }
 
-        return this.apps[name];
+        this.apps[Identifier.from(identifier)] = definition;
     }
 
     /**
-     * Check if app is defined
+     * Get app definition by name or identifier
      *
-     * @param {string} name
+     * @param {string|Identifier} query
+     * @return {ClientAppDefinition}
+     */
+    get(query: string | Identifier) {
+        const identifier = getIdentifierFromQuery(query, this.getApps());
+        return this.apps[identifier];
+    }
+
+
+    /**
+     * Check if app is defined by name or identifier
+     *
+     * @param {string|Identifier} query
      * @return {boolean}
      */
-    has(name: string): boolean {
-        return Boolean(this.apps[name]);
+    has(query: string | Identifier) {
+        let identifier;
+        try {
+            identifier = Identifier.from(query);
+            return Boolean(this.apps[identifier])
+        } catch (e) {
+            return this.getAliases().includes(query);
+        }
     }
 
     /**
@@ -67,7 +111,22 @@ export class ClientApps {
      *
      * @return {ClientAppsList}
      */
-    getNames(): Array<string> {
-        return Object.keys(this.apps);
+    getAliases(): Array<any> {
+        return Object
+            .entries(this.apps)
+            .map(function (elem) {
+                const [, definition] = elem;
+                return definition.aliases;
+            })
+            .reduce((acc, val: any) => acc.concat(val), []);
     }
-}
+
+    /**
+     * Get all apps
+     *
+     * @return {ClientAppsList}
+     */
+    getIdentifiers(): Array<Identifier> {
+        return Object.keys(this.apps).map((el) => Identifier.from(el));
+    }
+};

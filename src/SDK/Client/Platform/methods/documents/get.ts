@@ -39,7 +39,8 @@ const ensureAppContractFetched = async function (this: Platform, appName) {
         const appDefinition = this.client.getApps().get(appName);
 
         if (!appDefinition.contract) {
-            await this.contracts.get(appDefinition.contractId);
+            const contract = await this.contracts.get(appDefinition.contractId);
+            if(!contract) throw new Error(`Application Contract ID ${appDefinition.contractId} not found.`);
         }
     }
 }
@@ -120,7 +121,7 @@ export async function get(this: Platform, typeLocator: string, opts: fetchOpts):
 
     // @ts-ignore
     const rawDocuments = await this.client.getDAPIClient().platform.getDocuments(
-        appDefinition.contractId,
+        Identifier.from(appDefinition.contractId),
         fieldType,
         opts
     );
