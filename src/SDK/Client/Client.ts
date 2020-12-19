@@ -3,7 +3,7 @@ import DAPIClientTransport from "@dashevo/wallet-lib/src/transport/DAPIClientTra
 import { Platform } from './Platform';
 import { Network } from "@dashevo/dashcore-lib";
 import DAPIClient from "@dashevo/dapi-client";
-import { ClientApps, ClientAppsOptions } from "./ClientApps";
+import { ClientAppDefinitionOptions, ClientApps } from "./ClientApps";
 
 /**
  * Interface Client Options
@@ -20,7 +20,7 @@ import { ClientApps, ClientAppsOptions } from "./ClientApps";
  * @param {number} [baseBanTime=60000]
  */
 export interface ClientOpts {
-    apps?: ClientAppsOptions,
+    apps?: Array<ClientAppDefinitionOptions>,
     wallet?: Wallet.IWalletOptions,
     walletAccountIndex?: number,
     dapiAddressProvider?: any,
@@ -98,11 +98,27 @@ export class Client {
             this.walletAccountIndex = this.options.walletAccountIndex;
         }
 
-        this.apps = new ClientApps(Object.assign({
-            dpns: {
-                contractId: '3VvS19qomuGSbEYWbTsRzeuRgawU3yK4fPMzLrbV62u8'
-            }
-        }, this.options.apps));
+        const appsOpts: Array<ClientAppDefinitionOptions> = [];
+
+        if(this.options.apps){
+            appsOpts.push(...this.options.apps);
+        }
+
+        if(!appsOpts.find((el)=> el.alias === 'dpns')){
+            appsOpts.push({
+                contractId: '3VvS19qomuGSbEYWbTsRzeuRgawU3yK4fPMzLrbV62u8',
+                alias: 'dpns',
+            });
+        }
+
+        if(!appsOpts.find((el)=> el.alias === 'dashpay')){
+            appsOpts.push({
+                contractId: 'FrXpVEsxFZ9hgCpiXwWbsQe4xHB9wZHGj4Lg5UjgxtHb',
+                alias: 'dashpay',
+            });
+        }
+
+        this.apps = new ClientApps(appsOpts)
 
         this.platform = new Platform({
             client: this,

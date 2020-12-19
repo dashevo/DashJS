@@ -8,11 +8,10 @@ You will then need to pass the seed ip, and [register the DPNS contract](https:/
 const seeds = [{service: '54.245.133.124'}];
 const client = new Dash.Client({
   seeds,
-  apps: {
-    dpns: {
-      contractId: '77w8Xqn25HwJhjodrHW133aXhjuTsTv9ozQaYpSHACE3'
-    }
-  }
+  apps: [{
+      contractId: '77w8Xqn25HwJhjodrHW133aXhjuTsTv9ozQaYpSHACE3', 
+      alias: 'dpns'
+    }]
 });
 ```
 

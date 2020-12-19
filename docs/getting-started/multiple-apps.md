@@ -7,11 +7,10 @@ You can then pass it as an options.
 
 ```js
 const client = new Dash.Client({
-  apps: {
-    dashpay: {
-      contractId: '77w8Xqn25HwJhjodrHW133aXhjuTsTv9ozQaYpSHACE3'
-    }
-  }
+  apps: [{
+      contractId: '77w8Xqn25HwJhjodrHW133aXhjuTsTv9ozQaYpSHACE3',
+      alias: 'dashpay'
+  }]
 });
 ```
 

@@ -17,13 +17,7 @@ export async function get(this: Platform, identifier: ContractIdentifier): Promi
 
     const contractId : Identifier = Identifier.from(identifier);
 
-    for (const appName of this.client.getApps().getNames()) {
-        const appDefinition = this.client.getApps().get(appName);
-        if (appDefinition.contractId.equals(contractId)) {
-            localContract = appDefinition;
-            break;
-        }
-    }
+    localContract = this.client.getApps().get(contractId);
 
     if (localContract && localContract.contract) {
         return localContract.contract;
@@ -37,18 +31,9 @@ export async function get(this: Platform, identifier: ContractIdentifier): Promi
 
         const contract = await this.dpp.dataContract.createFromBuffer(rawContract);
 
-        if (!localContract) {
-            // If we do not have even the identifier in this.apps, we add it with timestamp as key
-            this.client.getApps().set(
-                Date.now().toString(),
-                {
-                    contractId: contractId,
-                    contract
-                }
-            );
-        } else {
-            localContract.contract = contract;
-        }
+        this.client.getApps().set(contractId, {
+            contract,
+        });
 
         return contract;
     }
