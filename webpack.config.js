@@ -1,3 +1,5 @@
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
+
 const path = require('path');
 
 const webConfig =  {
@@ -16,8 +18,16 @@ const webConfig =  {
     // fixes ReferenceError: window is not defined
     globalObject: "(typeof self !== 'undefined' ? self : this)"
   },
+  // Webpack versions > 5 do not automatically provide polyfills, need to manually set using this plugin
+  plugins: [
+    new NodePolyfillPlugin()
+  ],
   resolve: {
     extensions: ['.js', '.json'],
+    // fixes webpack bundle of node packages requiring 'fs' for web
+    fallback: {
+        fs: false
+    },
     alias: {
       'bn.js': path.resolve(__dirname, 'node_modules', 'bn.js')
     }
