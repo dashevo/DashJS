@@ -39,7 +39,10 @@ const ensureAppContractFetched = async function (this: Platform, appName) {
         const appDefinition = this.client.getApps().get(appName);
 
         if (!appDefinition.contract) {
-            await this.contracts.get(appDefinition.contractId);
+            const contract = await this.contracts.get(appDefinition.contractId);
+            if (!contract) {
+               throw new Error(`Applcation ${appName} contract with ID ${appDefinition.contractId} is not found`);
+            }
         }
     }
 }
